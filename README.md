@@ -18,7 +18,7 @@ IEEE 802.1X EAPoL 校园网 (FZU) 认证客户端 for windows
 
 需要安装 [WinPcap 4.1.0以上版本](https://www.winpcap.org/install/default.htm)
 
-[Releases](https://github.com/tr3ee/go-rjsocks/releases) 页面中的RJSocks-Installer.exe自带WinPcap安装包，可以直接进行安装而跳过上述步骤
+在[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*自带WinPcap安装，可跳过上述步骤直接进行安装
 
 #### 简单使用
 
@@ -65,9 +65,12 @@ IEEE 802.1X EAPoL 校园网 (FZU) 认证客户端 for windows
 
 联系作者Email：tr3e.wang \[AT\] gmail.com
 
-# 许可证
+### 许可证
 
-本程序所有涉及的锐捷认证功能均为网上开源代码分析而得。
-所有代码仅供学习交流使用，不得有意妨害任何一方权益。
-一切使用后果由用户自己承担，以任何方式使用本程序即表示同意该声明。
+本项目所涉及的锐捷认证功能均为网上开源代码分析而得。
+
+所有可执行文件仅供学习交流使用，不得有意妨害任何一方权益。
+
+一切使用后果由用户自己承担，以任何方式使用上述可执行文件即表示同意该声明。
+
 除非另据说明，所有代码根据 [MIT 许可](https://github.com/tr3ee/go-rjsocks/edit/master/LICENSE) 发布。
