@@ -60,7 +60,7 @@ IEEE 802.1X EAPoL 校园网 (FZU) 认证客户端 for windows
 
 | Name | GITHUB | Email |
 |-| ------ | ---- |
-| The Whisper | - | - |
+| The Whisper | https://github.com/virtualrooom | - |
 | tr3e | https://github.com/tr3ee | tr3e.wang \[AT\] gmail.com |
 
 联系作者Email：tr3e.wang \[AT\] gmail.com
