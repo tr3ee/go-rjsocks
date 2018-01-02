@@ -17,11 +17,17 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 
 下载 [最新版](https://github.com/tr3ee/go-rjsocks/releases)
 
+- 32位Windows用户请下载 RJSocks-windows_386.zip
+- 64位Windows用户请下载 RJSocks-windows_amd64.zip
+- RJSocks-Installer.exe 不区分32/64位，可直接下载安装
+
+备注：使用zip方式安装的用户需要手动安装下文的环境要求
+
 #### 环境要求
 
 需要安装 [WinPcap 4.1.0以上版本](https://www.winpcap.org/install/default.htm)
 
-在[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*自带WinPcap安装，可跳过上述步骤直接进行安装
+在[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*自带WinPcap安装，可跳过此步骤
 
 #### 简单使用
 
