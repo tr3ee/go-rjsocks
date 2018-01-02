@@ -20,6 +20,7 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 - 32位Windows用户请下载 RJSocks-windows_386.zip
 - 64位Windows用户请下载 RJSocks-windows_amd64.zip
 - RJSocks-Installer.exe 不区分32/64位，可直接下载安装
+- 从源码安装请点[这里](https://github.com/tr3ee/go-rjsocks/wiki/%E4%BB%8E%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85RJSocks)
 
 备注：使用zip方式安装的用户需要手动安装下文的环境要求
 
