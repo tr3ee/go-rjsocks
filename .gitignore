@@ -15,6 +15,8 @@
 .glide/
 
 # configuration and log file(s)
-
 config.ini
 log.txt
+
+# release files
+releases/

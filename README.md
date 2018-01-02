@@ -1,7 +1,10 @@
 RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 ==================================================
+*IEEE 802.1X EAPoL Campus Network Authentication Client for windows implemented in Go*
 
-IEEE 802.1X EAPoL 校园网 (FZU) 认证客户端 for windows
+![Protect Our Rights](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/banner-1.jpg)
+
+> 自由不是想做什么，就做什么，而是教会你不想做什么，就可以不做什么。
 
 #### 功能
 
@@ -65,12 +68,14 @@ IEEE 802.1X EAPoL 校园网 (FZU) 认证客户端 for windows
 
 联系作者Email：tr3e.wang \[AT\] gmail.com
 
-### 许可证
+#### 声明
 
 本项目所涉及的锐捷认证功能均为网上开源代码分析而得。
 
 所有可执行文件仅供学习交流使用，不得有意妨害任何一方权益。
 
-一切使用后果由用户自己承担，以任何方式使用上述可执行文件即表示同意该声明。
+### 许可证
 
-除非另据说明，所有代码根据 [MIT 许可](https://github.com/tr3ee/go-rjsocks/edit/master/LICENSE) 发布。
+除非另据说明，本项目遵循 [MIT 许可](https://github.com/tr3ee/go-rjsocks/edit/master/LICENSE) 发布。
+
+中文译文可参考 [MIT 开源许可协议](http://codeigniter.org.cn/user_guide/license.html)
