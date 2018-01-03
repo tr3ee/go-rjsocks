@@ -1,5 +1,7 @@
 RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 ==================================================
+[![GoDoc](https://godoc.org/github.com/tr3ee/go-rjsocks?status.svg)](https://godoc.org/github.com/tr3ee/go-rjsocks)
+
 *IEEE 802.1X EAPoL Campus Network Authentication Client for windows implemented in Go*
 
 ![Protect Our Rights](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/banner-1.jpg)
@@ -69,7 +71,7 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 贡献列表
 
 | Name | GITHUB | Email |
-|-| ------ | ---- |
+| ---- | ------ | ----- |
 | The Whisper | https://github.com/virtualrooom | - |
 | tr3e | https://github.com/tr3ee | tr3e.wang \[AT\] gmail.com |
 
