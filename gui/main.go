@@ -29,7 +29,7 @@ func init() {
 	}
 	fileinfo, err := logfile.Stat()
 	if err == nil {
-		if fileinfo.Size() > 10*1024*1024 {
+		if fileinfo.Size() > 10*1024 {
 			logfile.Seek(0, 0)
 		}
 	}
@@ -58,6 +58,7 @@ func main() {
 		}
 		defer service.Close()
 		defer appConfig.WriteBack()
+		appConfig.WriteBack()
 		if err := LaunchNotifyIcon(); err != nil {
 			log.Fatal(err)
 		}
