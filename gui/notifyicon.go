@@ -12,8 +12,9 @@ import (
 
 var iconSuccess, _ = walk.Resources.Icon("resources/rjsocks.ico")
 var iconFailure, _ = walk.Resources.Icon("resources/stop.ico")
+var ni *walk.NotifyIcon
 
-func UpdateStat(ni *walk.NotifyIcon) {
+func UpdateStat() {
 	stat := rjsocks.SrvStat(-1)
 	for {
 		service.WaitStat()
@@ -37,7 +38,7 @@ func LaunchNotifyIcon() error {
 		return err
 	}
 	defer mainWnd.Close()
-	ni, err := walk.NewNotifyIcon()
+	ni, err = walk.NewNotifyIcon()
 	if err != nil {
 		return err
 	}
@@ -131,7 +132,7 @@ func LaunchNotifyIcon() error {
 	// }
 	go service.Serve()
 	// 更新Icon状态
-	go UpdateStat(ni)
+	go UpdateStat()
 	mainWnd.Run()
 	return nil
 }
@@ -152,7 +153,17 @@ func NewCheckableAction(text string, checked bool) *walk.Action {
 func NewHelpMenu() *walk.Menu {
 	updateAction := NewAction("检查更新...")
 	updateAction.Triggered().Attach(func() {
-		ExecBackground("cmd", "/c", "start", "/b", "https://github.com/tr3ee/go-rjsocks/releases")
+		ver, err := CheckUpdate()
+		if err != nil {
+			ni.ShowError("无法检查更新", err.Error())
+		} else {
+			if len(ver) != 0 {
+				ni.ShowInfo("RJSocks "+ver+" 更新", "当前版本：RJSocks "+currentVersion)
+				ExecBackground("cmd", "/c", "start", "/b", "https://github.com/tr3ee/go-rjsocks/releases")
+			} else {
+				ni.ShowInfo("RJSocks "+currentVersion+" 当前已是最新版本", "点击关闭提示")
+			}
+		}
 	})
 	usageAction := NewAction("使用帮助(&U)")
 	usageAction.Triggered().Attach(func() {
