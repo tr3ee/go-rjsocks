@@ -85,6 +85,6 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 
 ### 许可证
 
-除非另据说明，本项目遵循 [MIT 许可](https://github.com/tr3ee/go-rjsocks/edit/master/LICENSE) 发布。
+除非另据说明，本项目遵循 [MIT 许可](https://github.com/tr3ee/go-rjsocks/blob/master/LICENSE) 发布。
 
 中文译文可参考 [MIT 开源许可协议](http://codeigniter.org.cn/user_guide/license.html)

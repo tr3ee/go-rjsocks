@@ -22,7 +22,7 @@ func CheckUpdate() (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
 		return "", err
 	}
-	if info.TagName > currentVersion {
+	if info.TagName != currentVersion {
 		return info.TagName, nil
 	}
 	return "", nil
