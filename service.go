@@ -136,18 +136,20 @@ func (s *Service) Serve() error {
 		case layers.EAPCodeSuccess:
 			//TODO
 			s.Log(SrvStatSuccess, "认证成功")
-			if len(eap.TypeData) > 0x15e+4 {
-				key := eap.TypeData[0x15e : 0x15e+4]
-				Symmetric(key)
-				echoKey := binary.BigEndian.Uint32(key)
-				echoNo := uint32(0x102b)
-				if err := reNewIP(s.adapter); err != nil {
-					panic(err)
-					s.Log(SrvStatError, err.Error())
+			if len(eap.Contents) > 10 {
+				pos := int(eap.Contents[9] + 0x8B)
+				if len(eap.Contents) >= pos+4 {
+					key := eap.Contents[pos : pos+4]
+					Symmetric(key)
+					echoKey := binary.BigEndian.Uint32(key)
+					echoNo := uint32(0x102b)
+					if err := reNewIP(s.adapter); err != nil {
+						panic(err)
+						s.Log(SrvStatError, err.Error())
+					}
+					s.StartEchoing(echoNo, echoKey)
 				}
-				s.StartEchoing(echoNo, echoKey)
 			}
-
 		case layers.EAPCodeFailure:
 			// 平方退避 0 1 4 9 16 25.。。
 			interval := time.Duration(failcount*failcount) * time.Second
