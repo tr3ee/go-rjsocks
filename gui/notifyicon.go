@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/lxn/walk"
 	"github.com/tr3ee/go-rjsocks"
@@ -15,6 +18,7 @@ var iconFailure, _ = walk.Resources.Icon("resources/stop.ico")
 var ni *walk.NotifyIcon
 
 func UpdateStat() {
+	once := sync.Once{}
 	stat := rjsocks.SrvStat(-1)
 	for {
 		service.WaitStat()
@@ -23,7 +27,7 @@ func UpdateStat() {
 			ni.SetToolTip(stat.String())
 			if stat == rjsocks.SrvStatSuccess {
 				ni.SetIcon(iconSuccess)
-				ni.ShowMessage("RJSocks认证成功", "  GITHUB地址\nhttps://github.com/tr3ee/go-rjsocks")
+				once.Do(func() { ni.ShowMessage("RJSocks认证成功", "  GITHUB地址\nhttps://github.com/tr3ee/go-rjsocks") })
 			} else if stat == rjsocks.SrvStatFailure {
 				ni.SetIcon(iconFailure)
 				ni.ShowError("RJSocks认证失败", "当前设备未联网")
@@ -120,6 +124,10 @@ func LaunchNotifyIcon() error {
 	exitAction.Triggered().Attach(func() {
 		ni.Dispose()
 		app.Exit(0)
+		go func() {
+			time.Sleep(10 * time.Second)
+			os.Exit(-1)
+		}()
 	})
 	ni.ContextMenu().Actions().Add(exitAction)
 
