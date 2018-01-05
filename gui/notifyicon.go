@@ -2,12 +2,10 @@ package main
 
 import (
 	"log"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"sync"
 	"syscall"
-	"time"
 
 	"github.com/lxn/walk"
 	"github.com/tr3ee/go-rjsocks"
@@ -124,8 +122,8 @@ func LaunchNotifyIcon() error {
 	exitAction.Triggered().Attach(func() {
 		ni.Dispose()
 		app.Exit(0)
-		time.Sleep(2 * time.Second)
-		os.Exit(-1)
+		// time.Sleep(2 * time.Second)
+		// os.Exit(-1)
 	})
 	ni.ContextMenu().Actions().Add(exitAction)
 
