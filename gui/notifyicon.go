@@ -124,10 +124,8 @@ func LaunchNotifyIcon() error {
 	exitAction.Triggered().Attach(func() {
 		ni.Dispose()
 		app.Exit(0)
-		go func() {
-			time.Sleep(10 * time.Second)
-			os.Exit(-1)
-		}()
+		time.Sleep(2 * time.Second)
+		os.Exit(-1)
 	})
 	ni.ContextMenu().Actions().Add(exitAction)
 
