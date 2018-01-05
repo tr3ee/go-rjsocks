@@ -9,7 +9,7 @@ type releaseInfo struct {
 	TagName string `json:"tag_name"`
 }
 
-var currentVersion = `v2.1.0b`
+var currentVersion = `v2.2.0b`
 
 func CheckUpdate() (string, error) {
 
