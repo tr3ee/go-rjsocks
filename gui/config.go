@@ -2,9 +2,24 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/astaxie/beego/config"
+	"github.com/lxn/walk"
 )
+
+var appConfig *AppConfig
+
+func init() {
+	if fp, err := os.OpenFile("config.ini", os.O_CREATE|os.O_APPEND|os.O_RDONLY, 0666); err == nil {
+		fp.Close()
+	} else {
+		walk.MsgBox(nil, "错误", "无法打开配置文件config.ini，查看日志log.txt获取详细信息", walk.MsgBoxIconError)
+		log.Fatal("无法打开配置文件config.ini:" + err.Error())
+	}
+	appConfig = &AppConfig{}
+	appConfig.ReadIn()
+}
 
 type AppConfig struct {
 	configer                            config.Configer

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net"
 	"os/exec"
+	"syscall"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
@@ -124,10 +125,10 @@ func checkSum(buf []byte) {
 	}
 }
 
-func reNewIP(adapter string) error {
-	cmd := exec.Command("cmdipconfig", "/renew", adapter)
-	go cmd.CombinedOutput()
-	return nil
+func reNewIP(adapter string) {
+	cmd := exec.Command("ipconfig", "/renew", adapter)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	go cmd.Run()
 }
 
 var fillbuf = []byte{

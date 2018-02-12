@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/binary"
+	"log"
 	"net"
 
 	"github.com/google/gopacket/layers"
-	"github.com/tr3ee/golog"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
@@ -30,10 +30,6 @@ func NewHandle(dev *pcap.Interface, srcMacAddr net.HardwareAddr) (*Handle, error
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		golog.Std.Panic(err)
-	}
-
 	h := &Handle{
 		PcapHandle: handler,
 		srcMacAddr: srcMacAddr,
@@ -151,6 +147,7 @@ func (h *Handle) SendLogoffPkt() error {
 var echoPacket = []byte{0xFF, 0xFF, 0x37, 0x77, 0x7F, 0x9F, 0xFF, 0xFF, 0xD9, 0x13, 0xFF, 0xFF, 0x37, 0x77, 0x7F, 0x9F, 0xFF, 0xFF, 0xF7, 0x2B, 0xFF, 0xFF, 0x37, 0x77, 0x7F, 0x3F, 0xFF}
 
 func (h *Handle) SendEchoPkt(echoNo, echoKey uint32) error {
+	log.Println("Send Echo Pkt", echoNo, echoKey)
 	if echoNo != 0x0000102B {
 		dd1, dd2 := echoNo+echoKey, echoNo
 		buf1, buf2 := echoPacket[6:10], echoPacket[16:20]

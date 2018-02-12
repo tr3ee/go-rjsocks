@@ -7,19 +7,17 @@ import (
 	_ "runtime/cgo"
 	"time"
 
-	"github.com/tr3ee/go-rjsocks"
-
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
+	"github.com/tr3ee/go-rjsocks/core"
 )
 
-func LaunchLoginWindow() error {
-	var db *walk.DataBinder
-	loginwnd, err := walk.NewMainWindow()
+func LoginFragment() error {
+	LoginWnd, err := walk.NewMainWindow()
 	if err != nil {
 		return err
 	}
-	defer loginwnd.Dispose()
+	defer LoginWnd.Dispose()
 	devs, err := rjsocks.ListNetworkDev()
 	if err != nil {
 		return err
@@ -28,25 +26,30 @@ func LaunchLoginWindow() error {
 	if err != nil {
 		return err
 	}
+
+	var db *walk.DataBinder
 	var checkBox1, checkBox2 *walk.CheckBox
+
 	ButtonClickAction := func() {
 		if err := db.Submit(); err != nil {
-			walk.MsgBox(loginwnd, "提示", "请填写所有必填项", walk.MsgBoxIconAsterisk)
+			walk.MsgBox(LoginWnd, "提示", "请填写所有必填项", walk.MsgBoxIconAsterisk)
 			return
 		}
-		if err := loginwnd.Close(); err != nil {
+		if err := LoginWnd.Close(); err != nil {
 			log.Fatal(err)
 		}
-		LoginSubmitted = true
+		loginSubmitted = true
 	}
 	KeyEnterAction := func(key walk.Key) {
 		if key == walk.KeyReturn {
 			ButtonClickAction()
 		}
 	}
+
 	rand.Seed(time.Now().Unix())
-	randBanner := fmt.Sprintf("banner-%d.jpg", rand.Intn(2)+1)
-	login := MainWindow{
+	banner := fmt.Sprintf("banner-%d.jpg", rand.Intn(2)+1)
+
+	mw := MainWindow{
 		Title:   "校园网登录客户端 @tr3e",
 		Size:    Size{320, 180},
 		MaxSize: Size{360, 260},
@@ -55,7 +58,7 @@ func LaunchLoginWindow() error {
 		Font:       Font{PointSize: 10},
 		Background: SolidColorBrush{Color: walk.RGB(255, 255, 255)},
 		Layout:     VBox{MarginsZero: true},
-		AssignTo:   &loginwnd,
+		AssignTo:   &LoginWnd,
 		Visible:    false,
 		DataBinder: DataBinder{
 			AssignTo:   &db,
@@ -63,7 +66,7 @@ func LaunchLoginWindow() error {
 		},
 		Children: []Widget{
 			ImageView{
-				Image:   "resources/" + randBanner,
+				Image:   "resources/" + banner,
 				Mode:    ImageViewModeIdeal,
 				MaxSize: Size{10, 0},
 			},
@@ -114,15 +117,10 @@ func LaunchLoginWindow() error {
 			},
 		},
 	}
-	if err := login.Create(); err != nil {
+	if err := mw.Create(); err != nil {
 		return err
 	}
-	if appConfig.AutoLogin {
-		ButtonClickAction()
-	} else {
-		// login.Enabled = true
-		loginwnd.Show()
-	}
-	loginwnd.Run()
+	LoginWnd.Show()
+	LoginWnd.Run()
 	return nil
 }
