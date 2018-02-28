@@ -38,7 +38,6 @@ func init() {
 	if fileinfo.Size() > 10*1024 {
 		logfile.Seek(0, 0)
 	}
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetOutput(logfile)
 	app = walk.App()
 	app.SetProductName("rjsocks")
@@ -99,6 +98,7 @@ func allocService() {
 	var err error
 	srvRWMutex.Lock()
 	defer srvRWMutex.Unlock()
+	log.Printf("allocating the resources required for the service\n")
 	if service != nil {
 		service.Close()
 	}
@@ -196,6 +196,7 @@ func setNotifyIcon() {
 
 func appExit(n int) {
 	app.Exit(n)
+	service.Close()
 	go func() {
 		time.Sleep(6 * time.Second)
 		os.Exit(-1)

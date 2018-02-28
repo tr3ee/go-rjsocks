@@ -2,6 +2,7 @@ package rjsocks
 
 import (
 	"encoding/binary"
+	"log"
 	"sync"
 	"time"
 
@@ -107,7 +108,7 @@ func (s *Service) Run() error {
 	s.threadLock.Lock()
 	defer s.threadLock.Unlock()
 	go s.crontab.Run()
-	s.crontab.ForceRegister("Monitor", NewCronItem(func() { s.handle.SendStartPkt() }, 40*time.Second))
+	s.crontab.ForceRegister("Monitor", NewCronItem(func() { log.Printf("detect inactive core services, sending start packet\n"); s.handle.SendStartPkt() }, 40*time.Second))
 	in, err := s.packets()
 	if err != nil {
 		return err
@@ -134,6 +135,7 @@ func (s *Service) Run() error {
 				if err := s.handle.SendResponseIdentity(eap.Id, s.user); err != nil {
 					return err
 				}
+				log.Printf("response identity '%s' to [%s] with id=%d\n", s.user, s.handle.dstMacAddr, eap.Id)
 			case layers.EAPTypeOTP:
 				s.updateStat(SrvStatRespMd5Chall)
 				if len(eap.TypeData) >= 17 {
@@ -141,6 +143,7 @@ func (s *Service) Run() error {
 					if err := s.handle.SendResponseMD5Chall(eap.Id, seed, s.user, s.pass); err != nil {
 						return err
 					}
+					log.Printf("response md5-challange with seed=%v\n", seed)
 				}
 			}
 		case layers.EAPCodeSuccess:
@@ -153,10 +156,17 @@ func (s *Service) Run() error {
 					s.echoKey = binary.BigEndian.Uint32(key)
 					s.echoNo = uint32(0x102b)
 					reNewIP(s.adapter)
-					s.crontab.ForceRegister("Echo", NewCronItem(func() { s.updateStat(SrvStatKeepAlive); s.handle.SendEchoPkt(s.echoNo, s.echoKey); s.echoNo++ }, 30*time.Second))
+					s.crontab.ForceRegister("Echo", NewCronItem(func() {
+						s.updateStat(SrvStatKeepAlive)
+						s.handle.SendEchoPkt(s.echoNo, s.echoKey)
+						s.echoNo++
+					}, 30*time.Second))
+					log.Printf("sending keep-alive packet with no=%d, key=%d...\n", s.echoNo, s.echoKey)
 				}
 			}
+			log.Printf("A successful login, congraz!\n")
 		case layers.EAPCodeFailure:
+			log.Printf("login failed, sorry.\n")
 			// 平方退避 0 1 4 9 16 25...
 			s.updateStat(SrvStatFailure)
 			interval := time.Duration(failcount*failcount) * time.Second
@@ -187,6 +197,7 @@ func (s *Service) Stop() {
 }
 
 func (s *Service) Close() {
+	log.Printf("closing RJSocks service\n")
 	s.handle.SendLogoffPkt()
 	s.handle.Close()
 	s.crontab.Close()
