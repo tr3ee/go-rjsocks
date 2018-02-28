@@ -16,6 +16,7 @@ var (
 	app        *walk.Application
 	nIcon      *walk.NotifyIcon
 	service    *rjsocks.Service
+	srvRWMutex sync.RWMutex
 	mainWnd, _ = walk.NewMainWindow()
 )
 
@@ -67,31 +68,37 @@ func main() {
 	mainWnd.Run()
 }
 
+func getServiceStat() rjsocks.SrvStat {
+	srvRWMutex.RLock()
+	defer srvRWMutex.RUnlock()
+	return service.State
+}
+
 func updateSrvStat() {
-	once := sync.Once{}
-	lastState := rjsocks.SrvStat(-1)
+	sOnce := sync.Once{}
+	fOnce := sync.Once{}
 	for {
 		time.Sleep(1 * time.Second)
-		if lastState != service.State {
-			if err := nIcon.SetToolTip(service.State.String()); err != nil {
-				break
-			}
-			lastState = service.State
-			if lastState == rjsocks.SrvStatSuccess {
-				nIcon.SetIcon(iconSuccess)
-				once.Do(func() {
-					nIcon.ShowMessage("RJSocks认证成功", "  GITHUB地址\nhttps://github.com/tr3ee/go-rjsocks")
-				})
-			} else if lastState == rjsocks.SrvStatFailure {
-				nIcon.SetIcon(iconFailure)
-				nIcon.ShowError("RJSocks认证失败", "当前设备未联网")
-			}
+		currState := getServiceStat()
+		if err := nIcon.SetToolTip(service.State.String()); err != nil {
+			break
+		}
+		if currState == rjsocks.SrvStatSuccess {
+			nIcon.SetIcon(iconSuccess)
+			sOnce.Do(func() {
+				nIcon.ShowMessage("RJSocks认证成功", "  GITHUB地址 ⭐⭐⭐\nhttps://github.com/tr3ee/go-rjsocks")
+			})
+		} else if currState == rjsocks.SrvStatFailure {
+			nIcon.SetIcon(iconFailure)
+			fOnce.Do(func() { nIcon.ShowError("RJSocks认证失败", "当前设备未联网") })
 		}
 	}
 }
 
 func allocService() {
 	var err error
+	srvRWMutex.Lock()
+	defer srvRWMutex.Unlock()
 	if service != nil {
 		service.Close()
 	}
