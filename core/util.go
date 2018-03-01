@@ -1,14 +1,27 @@
 package rjsocks
 
 import (
+	"bytes"
 	"errors"
+	"io/ioutil"
 	"net"
 	"os/exec"
 	"syscall"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
+
+func GbkToUtf8(s []byte) ([]byte, error) {
+	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
+	d, e := ioutil.ReadAll(reader)
+	if e != nil {
+		return nil, e
+	}
+	return d, nil
+}
 
 func ListNetworkDev() ([]string, error) {
 	interfaces, err := pcap.FindAllDevs()

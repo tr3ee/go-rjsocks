@@ -180,6 +180,12 @@ func setNotifyIcon() {
 
 	nIcon.ContextMenu().Actions().Add(walk.NewSeparatorAction())
 
+	advAction := NewAction("查看弹窗广告(&I)")
+	advAction.Triggered().Attach(func() {
+		go walk.MsgBox(mainWnd, "广告", service.GetAdvertisement(), walk.MsgBoxIconInformation)
+	})
+	nIcon.ContextMenu().Actions().Add(advAction)
+
 	aboutAction := NewAction("关于 RJSocks(&A)")
 	aboutAction.Triggered().Attach(func() {
 		ExecBackground("cmd", "/c", "start", "/b", "https://github.com/tr3ee/go-rjsocks")

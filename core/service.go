@@ -1,8 +1,11 @@
 package rjsocks
 
 import (
+	"bytes"
 	"encoding/binary"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -48,7 +51,7 @@ type Service struct {
 	device, adapter string
 	handle          *Handle
 	echoNo, echoKey uint32
-	advertising     []rune
+	advertising     string
 	chanPkt         chan gopacket.Packet
 	threadLock      sync.Mutex
 	crontab         *Crontab
@@ -149,6 +152,11 @@ func (s *Service) Run() error {
 		case layers.EAPCodeSuccess:
 			s.updateStat(SrvStatSuccess)
 			if len(eap.Contents) > 10 {
+				if ok := s.getAdvertisement(eap.Contents); ok {
+					log.Printf("------------- ADVERTISEMENT ------------------\n%s\n", s.advertising)
+					log.Printf("------------------ END -----------------------\n")
+				}
+				go s.getRemoteAdvertisement()
 				pos := int(eap.Contents[9] + 0x8B)
 				if len(eap.Contents) >= pos+4 {
 					key := eap.Contents[pos : pos+4]
@@ -179,6 +187,38 @@ func (s *Service) Run() error {
 		}
 	}
 	return nil
+}
+
+func (s *Service) GetAdvertisement() (ret string) {
+	if len(s.advertising) == 0 {
+		return "广告被吃掉了，过几分钟再来吧 XD"
+	}
+	return s.advertising
+}
+
+func (s *Service) getAdvertisement(buf []byte) bool {
+	if len(buf) > 10 {
+		length := int(buf[9])
+		if length > 0 {
+			if ad, err := GbkToUtf8(bytes.TrimLeft(buf[10:length+10], "\n\r")); err != nil {
+				return false
+			} else {
+				s.advertising = string(ad)
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (s *Service) getRemoteAdvertisement() {
+	resp, err := http.Get(`https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/ADVERTISEMENT`)
+	if err == nil && resp.StatusCode == 200 {
+		ads, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			s.advertising = string(ads) + "\n" + s.advertising
+		}
+	}
 }
 
 func (s *Service) updateStat(stat SrvStat) {
