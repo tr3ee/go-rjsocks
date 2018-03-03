@@ -17,9 +17,11 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 
 #### 环境要求
 
-[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*提供一键简单安装，可跳过此步骤
-
 需要安装 [WinPcap 4.1.0以上版本](https://www.winpcap.org/install/default.htm)
+
+~~[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*提供一键简单安装，可跳过此步骤~~
+
+由于打包工具Advanced Installer试用期过期，*RJSocks-3.0.1-beta-Installer.exe*及更高版本不再提供环境的打包（注：**可通过历史版本[RJSocks-2.2.0-beta-Installer.exe](https://github.com/tr3ee/go-rjsocks/releases/download/v2.2.0b/RJSocks-2.2.0-beta-Installer.exe)完成安装后进行更新**）
 
 #### 下载
 
@@ -42,7 +44,7 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
     - ![Stop Icon](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/stop.ico) 表示当前认证状态是失败的，常见的场景有：错误的用户名密码等
     - 白色火箭标识的RJSockets图标，则表示网络连接正常
 6. 屏幕截图：
-    - ![loginPage](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/screenshots/login.png)
+    - [登录页](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/screenshots/login.png)
 
 #### 动态IP获取 (DHCP)
 
