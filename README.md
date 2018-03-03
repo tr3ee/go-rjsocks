@@ -41,8 +41,8 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 5. 图标说明：
     - ![Stop Icon](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/stop.ico) 表示当前认证状态是失败的，常见的场景有：错误的用户名密码等
     - 白色火箭标识的RJSockets图标，则表示网络连接正常
-6. 屏幕截图
-    ![loginPage](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/screenshots/login.png)
+6. 屏幕截图：
+    - ![loginPage](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/screenshots/login.png)
 
 #### 动态IP获取 (DHCP)
 
