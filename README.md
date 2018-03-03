@@ -15,6 +15,12 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 3. 支持客户端多点登录
 4. 支持设备多网卡使用
 
+#### 环境要求
+
+[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*提供一键简单安装，可跳过此步骤
+
+需要安装 [WinPcap 4.1.0以上版本](https://www.winpcap.org/install/default.htm)
+
 #### 下载
 
 下载 [最新版](https://github.com/tr3ee/go-rjsocks/releases)
@@ -26,12 +32,6 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 
 备注：使用zip方式安装的用户需要手动安装下文的环境要求
 
-#### 环境要求
-
-需要安装 [WinPcap 4.1.0以上版本](https://www.winpcap.org/install/default.htm)
-
-在[Releases](https://github.com/tr3ee/go-rjsocks/releases) 中的*RJSocks-Installer.exe*自带WinPcap安装，可跳过此步骤
-
 #### 简单使用
 
 1. 填写用户名、密码并选择正确的网卡设备与网络适配器后，点击确定登录
@@ -39,8 +39,10 @@ RJSocks 开源、自由、不受限制的Windows校园网认证客户端
 3. 选择`自动登录`会再下一次打开时，跳过登录页直接登录
 4. 在任务栏中可以找到 RJSocket 图标，右键弹出菜单
 5. 图标说明：
-    - ![Stop Icon](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/stop.ico) 表示当前认证状态是失败的，常见的场景有：错误的用户名密码，未勾选启用网络连接等
+    - ![Stop Icon](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/gui/resources/stop.ico) 表示当前认证状态是失败的，常见的场景有：错误的用户名密码等
     - 白色火箭标识的RJSockets图标，则表示网络连接正常
+6. 屏幕截图
+    ![loginPage](https://raw.githubusercontent.com/tr3ee/go-rjsocks/master/screenshots/login.png)
 
 #### 动态IP获取 (DHCP)
 
