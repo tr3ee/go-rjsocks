@@ -157,7 +157,7 @@ func (s *Service) Run() error {
 					log.Printf("------------------ END -----------------------\n")
 				}
 				go s.getRemoteAdvertisement()
-				pos := int(eap.Contents[9] + 0x8B)
+				pos := int(eap.Contents[9]) + 0x8B
 				if len(eap.Contents) >= pos+4 {
 					key := eap.Contents[pos : pos+4]
 					Symmetric(key)
@@ -169,7 +169,7 @@ func (s *Service) Run() error {
 						s.handle.SendEchoPkt(s.echoNo, s.echoKey)
 						s.echoNo++
 					}, 30*time.Second))
-					log.Printf("sending keep-alive packet with no=%d, key=%d...\n", s.echoNo, s.echoKey)
+					log.Printf("sending keep-alive packet with no=%x, key=%x...\n", s.echoNo, s.echoKey)
 				}
 			}
 			log.Printf("A successful login, congraz!\n")
