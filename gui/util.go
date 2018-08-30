@@ -14,7 +14,7 @@ type releaseInfo struct {
 	TagName string `json:"tag_name"`
 }
 
-var currentVersion = `v2.3.0b`
+var currentVersion = `v3.0.3b`
 
 // CheckUpdate returns the latest tag name if there is a update
 func CheckUpdate() (string, error) {
