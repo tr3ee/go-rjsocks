@@ -4,8 +4,10 @@ package rjsocks
 
 import (
 	"net"
+	"os/exec"
 )
 
+// FindAllAdapters returns all the Network Adapters Info
 func FindAllAdapters() ([]NwAdapterInfo, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
@@ -21,4 +23,9 @@ func FindAllAdapters() ([]NwAdapterInfo, error) {
 		})
 	}
 	return infos, nil
+}
+
+func refreshIP(adapter string) {
+	cmd := exec.Command("dhclient", adapter)
+	cmd.Run()
 }

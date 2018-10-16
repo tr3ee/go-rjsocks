@@ -7,16 +7,23 @@ import (
 	"net"
 	"os/exec"
 	"strings"
+	"syscall"
 
 	"golang.org/x/net/html/charset"
 )
 
+/*
+FindAllAdapters returns all the Network Adapters Info:
+	It can be listed for users to choose
+	it uses 'getmac.exe' on windows and decode the result from gb2312 to utf-8
+	ATTENTION: the index of the return value is not fixed.
+*/
 func FindAllAdapters() ([]NwAdapterInfo, error) {
 	output, err := exec.Command("getmac", "/V", "/NH", "/FO", "csv").CombinedOutput()
 	if err != nil {
 		return nil, err
 	}
-	utf8reader, err := charset.NewReaderLabel("gb2312", bytes.NewReader(output))
+	utf8reader, err := charset.NewReaderLabel(sysDefaultCharset, bytes.NewReader(output))
 	if err != nil {
 		return nil, err
 	}
@@ -56,4 +63,10 @@ func FindAllAdapters() ([]NwAdapterInfo, error) {
 		})
 	}
 	return infos, nil
+}
+
+func refreshIP(adapter string) {
+	cmd := exec.Command("ipconfig", "/renew", adapter)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	cmd.Run()
 }
