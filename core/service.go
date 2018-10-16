@@ -1,7 +1,9 @@
 package rjsocks
 
 import (
+	"bufio"
 	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -42,6 +44,9 @@ type Service struct {
 	lastEvent Event
 	pktSrc    *gopacket.PacketSource
 	handle    *Handle
+	ads       string
+	echoNo    uint32
+	echoKey   uint32
 }
 
 func NewService(user, pass string, nwAdapterinfo *NwAdapterInfo) (*Service, error) {
@@ -66,7 +71,7 @@ func (s *Service) nextEvent() (Event, error) {
 		if err != nil {
 			return 0, err
 		}
-
+		// am I the target?
 		_eth := packet.Layer(layers.LayerTypeEthernet)
 		if _eth == nil {
 			continue
@@ -75,7 +80,7 @@ func (s *Service) nextEvent() (Event, error) {
 		if bytes.Compare(eth.DstMAC, s.nwinfo.Mac) != 0 {
 			continue
 		}
-
+		// try to decode as EAP layer.
 		eap := packet.Layer(layers.LayerTypeEAP)
 		if eap != nil {
 			pkt = packet
@@ -109,7 +114,32 @@ func (s *Service) NextEvent() Event {
 	return event
 }
 
+func (s *Service) parseExdata(data []byte) ([]byte, uint32, error) {
+	r := bufio.NewReader(bytes.NewReader(data))
+	ads, err := parseMTLV(r)
+	if err != nil {
+		return nil, 0, err
+	}
+	utf8Ads, err := toUTF8(ads.Buffer)
+	if err == nil {
+		ads.Buffer = utf8Ads
+	}
+	_, err = r.Discard(0x7B + 6)
+	if err != nil {
+		return nil, 0, err
+	}
+	buf := make([]byte, 4)
+	_, err = r.Read(buf)
+	if err != nil {
+		return nil, 0, err
+	}
+	symEncode(buf)
+	key := binary.BigEndian.Uint32(buf)
+	return ads.Buffer, key, nil
+}
+
 func (s *Service) handleEvent(e Event) error {
+	defer func() { s.lastEvent = e }()
 	switch e {
 	case EventStart:
 		if err := s.handle.SendStartPkt(); err != nil {
@@ -132,12 +162,38 @@ func (s *Service) handleEvent(e Event) error {
 		}
 	case EventSuccess:
 		// TODO
+		eap := s.lastPkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
+		if len(eap.Contents) > 4 {
+			ads, key, err := s.parseExdata(eap.Contents[4:])
+			if err != nil {
+				return err
+			}
+			s.ads = string(ads)
+			s.echoKey = key
+			s.echoNo = uint32(0x102b)
+			log.Printf("adv: %s\nechoNo: %x\nechoKey: %x\n", s.ads, s.echoNo, s.echoKey)
+			/*
+				TODO: keep it alive on EventKeepAlive
+					for {
+						if err := s.handle.SendEchoPkt(echoNo, key); err != nil {
+							panic(err)
+						}
+						echoNo++
+						time.Sleep(30 * time.Second)
+					}
+			*/
+		} else {
+			return fmt.Errorf("packet corrupted: no enough data to parse on SUCCESS")
+		}
+	case EventKeepAlive:
+		if s.lastEvent == EventSuccess || s.lastEvent == EventKeepAlive {
+			// TODO: sending heart-beat packet
+		}
 	case EventFailure:
 		// TODO
 	case EventError:
 		// TODO
 	}
-	s.lastEvent = e
 	return nil
 }
 
