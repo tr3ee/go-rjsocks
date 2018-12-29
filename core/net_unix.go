@@ -1,4 +1,4 @@
-// +build unix,cgo
+// +build unix linux
 
 package rjsocks
 

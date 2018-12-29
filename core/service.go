@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -22,15 +22,15 @@ type Event int
  all Event defined here.
 */
 const (
-	EventIdle = Event(iota)
-	EventStart
+	EventError = Event(iota)
+	EventIdle
 	EventRespIdentity
 	EventRespMd5Chall
 	EventSuccess
 	EventFailure
-	EventKeepAlive
-	EventError
 )
+
+const idleTimeout = 29 * time.Second
 
 /*
  Service defines all the data required in the authentication process.
@@ -43,6 +43,7 @@ type Service struct {
 	lastPkt   gopacket.Packet
 	lastEvent Event
 	pktSrc    *gopacket.PacketSource
+	pktChan   chan gopacket.Packet
 	handle    *Handle
 	ads       string
 	echoNo    uint32
@@ -59,18 +60,14 @@ func NewService(user, pass string, nwAdapterinfo *NwAdapterInfo) (*Service, erro
 		password: []byte(pass),
 		nwinfo:   nwAdapterinfo,
 		pktSrc:   gopacket.NewPacketSource(handle.PcapHandle, layers.LayerTypeEthernet),
+		pktChan:  make(chan gopacket.Packet, 1024),
 		handle:   handle,
 	}
 	return srv, nil
 }
 
-func (s *Service) nextEvent() (Event, error) {
-	var pkt gopacket.Packet
-	for {
-		packet, err := s.pktSrc.NextPacket()
-		if err != nil {
-			return 0, err
-		}
+func (s *Service) prePacket() {
+	for packet := range s.pktSrc.Packets() {
 		// am I the target?
 		_eth := packet.Layer(layers.LayerTypeEthernet)
 		if _eth == nil {
@@ -83,11 +80,19 @@ func (s *Service) nextEvent() (Event, error) {
 		// try to decode as EAP layer.
 		eap := packet.Layer(layers.LayerTypeEAP)
 		if eap != nil {
-			pkt = packet
-			break
+			s.pktChan <- packet
 		}
 	}
-	s.lastPkt = pkt
+}
+
+func (s *Service) nextEvent() (Event, error) {
+	var pkt gopacket.Packet
+	select {
+	case pkt = <-s.pktChan:
+		s.lastPkt = pkt
+	case <-time.After(idleTimeout):
+		return EventIdle, nil
+	}
 	eap := pkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
 	switch eap.Code {
 	case layers.EAPCodeRequest:
@@ -141,10 +146,6 @@ func (s *Service) parseExdata(data []byte) ([]byte, uint32, error) {
 func (s *Service) handleEvent(e Event) error {
 	defer func() { s.lastEvent = e }()
 	switch e {
-	case EventStart:
-		if err := s.handle.SendStartPkt(); err != nil {
-			return err
-		}
 	case EventRespIdentity:
 		eth := s.lastPkt.Layer(layers.LayerTypeEthernet).(*layers.Ethernet)
 		eap := s.lastPkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
@@ -185,9 +186,16 @@ func (s *Service) handleEvent(e Event) error {
 		} else {
 			return fmt.Errorf("packet corrupted: no enough data to parse on SUCCESS")
 		}
-	case EventKeepAlive:
-		if s.lastEvent == EventSuccess || s.lastEvent == EventKeepAlive {
-			// TODO: sending heart-beat packet
+	case EventIdle:
+		if s.lastEvent == EventSuccess || s.lastEvent == EventIdle {
+			if err := s.handle.SendEchoPkt(s.echoNo, s.echoKey); err != nil {
+				return err
+			}
+			s.echoNo++
+		} else {
+			if err := s.handle.SendStartPkt(); err != nil {
+				return err
+			}
 		}
 	case EventFailure:
 		// TODO
@@ -206,17 +214,11 @@ func (s *Service) HandleEvent(e Event) {
 }
 
 func (s *Service) Run() {
-	if err := s.handle.SendStartPkt(); err != nil {
-		panic(err)
-	}
+	go s.prePacket()
+	s.HandleEvent(EventIdle)
 	for {
 		e := s.NextEvent()
-		if e == EventIdle {
-			fmt.Println(hex.Dump(s.lastPkt.Data()))
-		}
 		switch e {
-		case EventStart:
-			log.Println("Start")
 		case EventRespIdentity:
 			log.Println("RequestIdentity")
 		case EventRespMd5Chall:
