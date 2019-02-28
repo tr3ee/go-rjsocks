@@ -3,6 +3,7 @@ package rjsocks
 import (
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"net"
 	"os/exec"
@@ -59,7 +60,7 @@ func FindAllAdapters() ([]NwAdapterInfo, error) {
 			AdapterName: record[0],
 			DeviceDesc:  record[1],
 			Mac:         mac,
-			DeviceName:  deviceName,
+			DeviceName:  fmt.Sprintf(`\Device\NPF_{%s}`, deviceName),
 		})
 	}
 	return infos, nil

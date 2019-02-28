@@ -6,6 +6,7 @@ import (
 )
 
 func TestService(t *testing.T) {
+	// devName := flag.String("dev", "", "network device")
 	infos, err := FindAllAdapters()
 	if err != nil {
 		t.Fatal(err)

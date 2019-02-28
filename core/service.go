@@ -51,7 +51,7 @@ type Service struct {
 }
 
 func NewService(user, pass string, nwAdapterinfo *NwAdapterInfo) (*Service, error) {
-	handle, err := NewHandle(fmt.Sprintf(`\Device\NPF_{%s}`, nwAdapterinfo.DeviceName), nwAdapterinfo.Mac)
+	handle, err := NewHandle(nwAdapterinfo.DeviceName, nwAdapterinfo.Mac)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (s *Service) prePacket() {
 			continue
 		}
 		eth := _eth.(*layers.Ethernet)
-		if bytes.Compare(eth.DstMAC, s.nwinfo.Mac) != 0 {
+		if bytes.Compare(eth.SrcMAC, s.nwinfo.Mac) == 0 {
 			continue
 		}
 		// try to decode as EAP layer.
@@ -90,24 +90,24 @@ func (s *Service) nextEvent() (Event, error) {
 	select {
 	case pkt = <-s.pktChan:
 		s.lastPkt = pkt
+		eap := pkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
+		switch eap.Code {
+		case layers.EAPCodeRequest:
+			switch eap.Type {
+			case layers.EAPTypeIdentity:
+				return EventRespIdentity, nil
+			case layers.EAPTypeOTP:
+				return EventRespMd5Chall, nil
+			}
+		case layers.EAPCodeSuccess:
+			return EventSuccess, nil
+		case layers.EAPCodeFailure:
+			return EventFailure, nil
+		}
 	case <-time.After(idleTimeout):
 		return EventIdle, nil
 	}
-	eap := pkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
-	switch eap.Code {
-	case layers.EAPCodeRequest:
-		switch eap.Type {
-		case layers.EAPTypeIdentity:
-			return EventRespIdentity, nil
-		case layers.EAPTypeOTP:
-			return EventRespMd5Chall, nil
-		}
-	case layers.EAPCodeSuccess:
-		return EventSuccess, nil
-	case layers.EAPCodeFailure:
-		return EventFailure, nil
-	}
-	return EventIdle, nil
+	return EventError, nil
 }
 
 func (s *Service) NextEvent() Event {
@@ -162,7 +162,6 @@ func (s *Service) handleEvent(e Event) error {
 			}
 		}
 	case EventSuccess:
-		// TODO
 		eap := s.lastPkt.Layer(layers.LayerTypeEAP).(*layers.EAP)
 		if len(eap.Contents) > 4 {
 			ads, key, err := s.parseExdata(eap.Contents[4:])
@@ -172,17 +171,8 @@ func (s *Service) handleEvent(e Event) error {
 			s.ads = string(ads)
 			s.echoKey = key
 			s.echoNo = uint32(0x102b)
-			log.Printf("adv: %s\nechoNo: %x\nechoKey: %x\n", s.ads, s.echoNo, s.echoKey)
-			/*
-				TODO: keep it alive on EventKeepAlive
-					for {
-						if err := s.handle.SendEchoPkt(echoNo, key); err != nil {
-							panic(err)
-						}
-						echoNo++
-						time.Sleep(30 * time.Second)
-					}
-			*/
+			go refreshIP(s.nwinfo.AdapterName)
+			log.Println("ad: ", s.ads)
 		} else {
 			return fmt.Errorf("packet corrupted: no enough data to parse on SUCCESS")
 		}
@@ -198,9 +188,10 @@ func (s *Service) handleEvent(e Event) error {
 			}
 		}
 	case EventFailure:
-		// TODO
+		// TODO log
 	case EventError:
 		// TODO
+		log.Printf("[ERROR] packet: \n%s", s.lastPkt)
 	}
 	return nil
 }
