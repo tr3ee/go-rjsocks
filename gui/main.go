@@ -49,7 +49,7 @@ func main() {
 	defer appConfig.WriteBack()
 
 	var err error
-	nIcon, err = walk.NewNotifyIcon()
+	nIcon, err = walk.NewNotifyIcon(mainWnd)
 	if err != nil {
 		panic(err)
 	}
