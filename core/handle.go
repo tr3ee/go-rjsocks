@@ -165,7 +165,7 @@ func (h *Handle) SendEchoPkt(echoNo, echoKey uint32) error {
 		Type:    0xbf,
 		Length:  uint16(len(echoPacket)),
 	}
-	echo := RawLayer{echoPacket}
+	echo := gopacket.Payload(echoPacket)
 	if err := h.send(&eth, &eapol, &echo); err != nil {
 		return err
 	}

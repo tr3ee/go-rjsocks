@@ -179,8 +179,8 @@ var fillbuf = []byte{
 	0x55, 0x02, 0x1a, 0x09, 0x00, 0x00, 0x13, 0x11, 0x62, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 }
 
-var fillLayer = RawLayer{fillbuf}
-
+var fillLayer = gopacket.Payload(fillbuf)
+/*
 type RawLayer struct {
 	RawBytes []byte
 }
@@ -193,3 +193,4 @@ func (r *RawLayer) SerializeTo(b gopacket.SerializeBuffer, opts gopacket.Seriali
 	copy(bytes, r.RawBytes)
 	return nil
 }
+*/
